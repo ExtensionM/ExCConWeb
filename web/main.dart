@@ -7,23 +7,25 @@ import 'dart:html';
 import 'dart:convert';
 
 InputElement passwordInput,usernameInput;
-ButtonElement loginButton;
+ButtonElement loginButton,rightButton,leftButton,upButton,downButton;
 
 var wsClient = new WebSocket('ws://ec2-52-68-77-61.ap-northeast-1.compute.amazonaws.com:3000');
-
+bool auth = false;
 /// Class of websocket message 
 class webSocketMessage {
-
+	/// Message Type
 	String type;
+	/// Message Value
 	Map value;
-
+	
 	@override
-		String toString(){
+	String toString(){
 			Map map = new Map();
 			map["type"] = type;
 			map["value"] = value;
 			return JSON.encode(map);
-		}
+	}
+
 	webSocketMessage(this.type,this.value);
 
 	factory webSocketMessage.fromJsonString(String message_str){
@@ -33,10 +35,16 @@ class webSocketMessage {
 }
 
 void main() {
-	//要素の初期化
+	//Initialize Element
 	usernameInput = querySelector('#login-username');
 	passwordInput = querySelector('#login-pass');
 	loginButton = querySelector('#login-button');
+	
+	rightButton = querySelector('#right-button');
+	upButton = querySelector('#up-button');
+	downButton = querySelector('#down-button');
+	leftButton = querySelector('#left-button');
+
 	changeDisplayMessage("Hello!");
 	loginButton.onClick.listen(loginRequest);
 
@@ -67,7 +75,10 @@ void loginRequest(Event e){
 	} else {
 		changeDisplayMessage("Don't input password or username");
 	}
-			querySelector("#message_text").text = "Error";
+}
+
+/// Send Call Request 
+void callRequest(){
 }
 
 ///Check login message ( type : webauth )
@@ -76,10 +87,10 @@ void checkLogin(webSocketMessage message){
 	if(message.value["result"] == 0){
 		//TODO
 		changeDisplayMessage("Succeeded in longing!");
+		auth = true;
 	} else {
 		changeDisplayMessage("Failed to Login :" + message.value["error"]);
 	}
-
 }
 
 /// Check Message
@@ -97,5 +108,4 @@ void reciveWebsocketData(MessageEvent event){
 			break;
 	}
 }
-
 
