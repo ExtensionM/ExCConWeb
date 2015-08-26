@@ -13,25 +13,33 @@ is governed by a BSD-style license that can be found in the LICENSE file.
 		<meta name="scaffolded-by" content="https://github.com/google/stagehand">
 		<title>CConWeb</title>
 
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
 		<link rel="stylesheet" href="styles/main.css">
 	</head>
 
 	<body>
+		<div class="pure-g">
 
-		<h2> Extension Camera Contoller </h2>
+			<div class="pure-u-1-4"></div>
+			<div class="pure-u-1-2">
+				<h2> Extension Camera Contoller </h2>
 
-		<div>
-			<input id="login-username" type="text" placeholder="your user name">
-			<input id="login-pass" type="password" placeholder="Your password">
-			<input id="login-button" type="button" value="Login">
-			<p id="message-text"></p>
-			<br>
-			<input id="left-button" type="button" value="Left">
-			<input id="up-button" type="button" value="Up">
-			<input id="down-button" type="button" value="Down">
-			<input id="right-button" type="button" value="Right">
+				<form class="pure-form">
+					<input id="login-username" type="text" placeholder="Your user name">
+					<input id="login-pass" type="password" placeholder="Your password">
+					<input class="pure-button" id="login-button" type="button" value="Login">
+				</form>
+				<p id="message-text">
+					Hello!
+				</p>
+				<input class="pure-button" id="left-button" type="button" value="Left">
+				<input class="pure-button" id="up-button" type="button" value="Up">
+				<input class="pure-button" id="down-button" type="button" value="Down">
+				<input class="pure-button" id="right-button" type="button" value="Right">
+
+			</div>
+			<div class="pure-u-1-4"></div>
 		</div>
-
 		<script type="application/dart" src="main.dart"></script>
 		<script data-pub-inline src="packages/browser/dart.js"></script>
 	</body>
