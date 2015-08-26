@@ -33,22 +33,25 @@ class webSocketMessage {
 
 void main() {
   //要素の初期化
-  passwordInput = querySelector('#login-username');
-  usernameInput = querySelector('#login-pass');
+  usernameInput = querySelector('#login-username');
+  passwordInput = querySelector('#login-pass');
   loginButton = querySelector('#login-button');
   querySelector("#message-text").text = "Hello!";
-  loginButton.onClick.listen(loginCheck);
+  loginButton.onClick.listen(loginRequest);
 
   wsClient.onMessage.listen(reciveWebsocketData);
 }
 
-void loginCheck(Event e){
+///Send Login Request 
+void loginRequest(Event e){
 	var userName = usernameInput.value;
 	var password = passwordInput.value;
 	Map value = new Map();
 	value["username"] = userName;
 	value["password"] = password;
 	var send_message = new webSocketMessage("webAuth",value);
+
+	//Send Data on Web Socket 
 	if(wsClient != null && wsClient.readyState == WebSocket.OPEN){
 		var message_str = send_message.toString();
 		wsClient.send(message_str);
@@ -58,11 +61,23 @@ void loginCheck(Event e){
 	}
 }
 
+void checkLogin(webSocketMessage message){
+	// value.result - 0:succeed Others: fail
+	if(message.value["result"] == 0){
+		//TODO
+		querySelector("#message-text").text = "Succeeded in longing!";
+	} else {
+		querySelector("#message-text").text = "Failed to Login :" + message.value["error"];
+	}
+	
+}
+
+/// Check Message
 void reciveWebsocketData(MessageEvent event){
-  	querySelector("#message-text").text = event.data;
 	var message = new webSocketMessage.fromJsonString(event.data);
 	switch(message.type){
 		case 'webAuth':
+			checkLogin(message);
 			break;
 		case 'call':
 			break;
@@ -73,3 +88,5 @@ void reciveWebsocketData(MessageEvent event){
 			break;
 	}
 }
+
+
