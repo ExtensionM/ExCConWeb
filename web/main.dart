@@ -7,13 +7,16 @@ import 'dart:html';
 import 'dart:convert';
 
 InputElement passwordInput,usernameInput;
-ButtonElement loginButton,rightButton,leftButton,upButton,downButton;
-
+ButtonElement loginButton,rightButton,leftButton,upButton,downButton,takeButton;
+ImageElement cameraImageElement;
 
 var wsClient = new WebSocket('ws://ec2-52-68-77-61.ap-northeast-1.compute.amazonaws.com:3000');
 bool auth = false;
 
+/// Camera Child ID
 var cameraID = "";
+/// Camera Servo Angle
+int cameraUDValue = 90,cameraLRValue = 90;
 
 /// Class of websocket message 
 class webSocketMessage {
@@ -48,9 +51,26 @@ void main() {
 	upButton = querySelector('#up-button');
 	downButton = querySelector('#down-button');
 	leftButton = querySelector('#left-button');
+	takeButton = querySelector('#take-button');
 
+	cameraImageElement = querySelector('#camera-image');
 	changeDisplayMessage("Hello!");
 	loginButton.onClick.listen(loginRequest);
+	rightButton.onClick.listen((Event e){
+		cameraServoMove(1,-5);
+	});
+	leftButton.onClick.listen((Event e){
+		cameraServoMove(1,5);
+	});
+	upButton.onClick.listen((Event e){
+		cameraServoMove(2,5);
+	});
+	downButton.onClick.listen((Event e){
+		cameraServoMove(2,-5);
+	});
+	takeButton.onClick.listen((Event e){
+		takePhoto();
+	});	
 
 	wsClient.onMessage.listen(reciveWebsocketData);
 }
@@ -58,6 +78,34 @@ void main() {
 /// Change Message of #message-text
 void changeDisplayMessage(String text){
 	querySelector("#message-text").text = text;
+}
+
+/// Send Camera Take photo
+void takePhoto(){
+	changeDisplayMessage("take");
+	callRequest("take",cameraID,null);
+}
+
+/// Send Camera Device 
+void cameraServoMove(int direction,int value){
+	var functionName = "";
+	var angle = 0;
+	switch (direction) {
+		case 1:
+			functionName = "angleX";
+			angle = cameraUDValue + value;
+			break;
+		case 2:
+			functionName = "angleY";
+			angle = cameraLRValue + value;
+			break;
+		default:
+			break;
+	}
+
+	changeDisplayMessage(functionName);
+	var arg = {"angle":angle};
+	callRequest(functionName,cameraID,arg);
 }
 
 ///Send Login Request 
@@ -88,12 +136,14 @@ void childListRequest(){
 }
 
 /// Send Call Request 
-void callRequest(String functionName,String childId,{Map args}){
+void callRequest(String functionName,String childId,Map args){
 	var values = {"id":childId,"func":functionName};
-	values.addAll(args);
+	if(args != null){
+		values.addAll(args);
+	}
 	var message = new webSocketMessage("call",values);
 
-	wsClient.send(message.toString);
+	wsClient.send(message.toString());
 }
 
 ///Check login message ( type : webauth )
@@ -106,6 +156,39 @@ void checkLogin(webSocketMessage message){
 		childListRequest();
 	} else {
 		changeDisplayMessage("Failed to Login :" + message.value["error"]);
+	}
+}
+
+/// Check Call Result
+void checkCall(webSocketMessage message){
+	if(message.value['result'] != 0){
+		changeDisplayMessage(message.value['error']);
+	}
+}
+
+/// Check Function Result
+void checkResult(webSocketMessage message){
+	if(message.value["hasError"] == false){
+		switch(message.value["functionName"]){
+			case 'angleY':
+				cameraLRValue = message.value["result"];
+				changeDisplayMessage("X: " + cameraUDValue.toString() + " Y: " + cameraLRValue.toString());
+				break;
+			case 'angleX':
+				cameraUDValue = message.value["result"];
+				changeDisplayMessage("X: " + cameraUDValue.toString() + " Y: " + cameraLRValue.toString());
+				break;
+			case 'take':
+				changeDisplayMessage("X: " + cameraUDValue.toString() + " Y: " + cameraLRValue.toString() + " take");
+				break;
+		}
+	}
+}
+
+/// Display Photo Image
+void displayCameraImage(webSocketMessage message){
+	if(message.value["result"] == 0){
+		cameraImageElement.src = message.value["data"]["data"];	
 	}
 }
 
@@ -138,14 +221,18 @@ void reciveWebsocketData(MessageEvent event){
 			checkLogin(message);
 			break;
 		case 'call':
+			checkCall(message);	
 			break;
 		case 'result':
+			checkResult(message);
 			break;
 		case 'list':
 			findChildFromList(message);
+			break;
+		case 'message':
+			displayCameraImage(message);
 			break;
 		default:
 			break;
 	}
 }
-
