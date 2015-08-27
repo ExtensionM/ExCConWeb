@@ -9,22 +9,26 @@ import 'dart:convert';
 InputElement passwordInput,usernameInput;
 ButtonElement loginButton,rightButton,leftButton,upButton,downButton;
 
+
 var wsClient = new WebSocket('ws://ec2-52-68-77-61.ap-northeast-1.compute.amazonaws.com:3000');
 bool auth = false;
+
+var cameraID = "";
+
 /// Class of websocket message 
 class webSocketMessage {
 	/// Message Type
 	String type;
 	/// Message Value
 	Map value;
-	
+
 	@override
-	String toString(){
+		String toString(){
 			Map map = new Map();
 			map["type"] = type;
 			map["value"] = value;
 			return JSON.encode(map);
-	}
+		}
 
 	webSocketMessage(this.type,this.value);
 
@@ -39,7 +43,7 @@ void main() {
 	usernameInput = querySelector('#login-username');
 	passwordInput = querySelector('#login-pass');
 	loginButton = querySelector('#login-button');
-	
+
 	rightButton = querySelector('#right-button');
 	upButton = querySelector('#up-button');
 	downButton = querySelector('#down-button');
@@ -77,8 +81,19 @@ void loginRequest(Event e){
 	}
 }
 
+/// Send Child List Request
+void childListRequest(){
+	var send_message = new webSocketMessage("list",null);
+	wsClient.send(send_message.toString());
+}
+
 /// Send Call Request 
-void callRequest(){
+void callRequest(String functionName,String childId,{Map args}){
+	var values = {"id":childId,"func":functionName};
+	values.addAll(args);
+	var message = new webSocketMessage("call",values);
+
+	wsClient.send(message.toString);
 }
 
 ///Check login message ( type : webauth )
@@ -88,8 +103,30 @@ void checkLogin(webSocketMessage message){
 		//TODO
 		changeDisplayMessage("Succeeded in longing!");
 		auth = true;
+		childListRequest();
 	} else {
 		changeDisplayMessage("Failed to Login :" + message.value["error"]);
+	}
+}
+
+/// Find Camera Child from Child List Json Data
+void findChildFromList(webSocketMessage message){
+	List<String> cameraChildIdList = new List();
+	message.value["commands"].forEach((key,values){		
+		if(key != "a" && key != "default"){
+			if(values["name"] == "Camera"){
+				cameraChildIdList.add(key);
+			}
+		}
+	});
+
+	if(cameraChildIdList.length == 1){
+		cameraID = cameraChildIdList[0];
+		changeDisplayMessage("You have Camera Child: " + cameraID);
+	}else if(cameraChildIdList == 0){
+		changeDisplayMessage("You don't have camera Children.");
+	}else{
+		//TODO 複数台あるときの選択ボタンなど
 	}
 }
 
@@ -103,6 +140,9 @@ void reciveWebsocketData(MessageEvent event){
 		case 'call':
 			break;
 		case 'result':
+			break;
+		case 'list':
+			findChildFromList(message);
 			break;
 		default:
 			break;
