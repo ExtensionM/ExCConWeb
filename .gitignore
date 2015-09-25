@@ -1,9 +1,0 @@
-.buildlog
-.DS_Store
-.idea
-.pub/
-build/
-doc/
-packages
-.packages
-pubspec.lock
