@@ -14,6 +14,7 @@ ButtonElement loginButton,
     downButton,
     takeButton;
 ImageElement cameraImageElement;
+DivElement selectDiv;
 
 var wsClient = new WebSocket(
     'ws://ec2-52-68-77-61.ap-northeast-1.compute.amazonaws.com:3000');
@@ -59,6 +60,8 @@ void main() {
   downButton = querySelector('#down-button');
   leftButton = querySelector('#left-button');
   takeButton = querySelector('#take-button');
+
+  selectDiv = querySelector('#selects');
 
   cameraImageElement = querySelector('#camera-image');
   changeDisplayMessage("Hello!");
@@ -211,22 +214,45 @@ void displayCameraImage(webSocketMessage message) {
 
 /// Find Camera Child from Child List Json Data
 void findChildFromList(webSocketMessage message) {
-  List<String> cameraChildIdList = new List();
+  Map<String,String> cameraChildIdMap = new Map();
   message.value["commands"].forEach((key, values) {
     if (key != "a" && key != "default") {
-      if (values["name"] == "Camera") {
-        cameraChildIdList.add(key);
+      if (values["name"] == "CameraSimple" || values["name"] == "Camera") {
+        cameraChildIdMap[key] = values["name"];
       }
     }
   });
 
-  if (cameraChildIdList.length == 1) {
-    cameraID = cameraChildIdList[0];
-    changeDisplayMessage("You have Camera Child: " + cameraID);
-  } else if (cameraChildIdList == 0) {
+  if (cameraChildIdMap.isEmpty) {
     changeDisplayMessage("You don't have camera Children.");
   } else {
-    //TODO 複数台あるときの選択ボタンなど
+    cameraChildIdMap.forEach((guid,name){
+      InputElement button = new InputElement();
+      button.value = guid + " - " + name;
+      button.classes.addAll(["pure-button","button-select"]);
+      button.type = "button";
+      button.onClick.listen((Event e){
+        cameraID = guid;
+        changeDisplayMessage("You choice camera " + guid);
+        removeOrAppendButton(name);
+      });
+      selectDiv.children.add(button);
+    });
+  }
+}
+
+/// remove Button with child kind
+void removeOrAppendButton(String name){
+  if(name == "CameraSimple"){
+    rightButton.style.display = "none";
+    leftButton.style.display = "none";
+    upButton.style.display = "none";
+    downButton.style.display = "none";
+  } else {
+    rightButton.style.display = "block";
+    leftButton.style.display = "block";
+    upButton.style.display = "block";
+    downButton.style.display = "block";
   }
 }
 
