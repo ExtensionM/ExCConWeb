@@ -163,6 +163,9 @@ void checkLogin(webSocketMessage message) {
     //TODO
     changeDisplayMessage("Succeeded in longing!");
     auth = true;
+    selectDiv.children.clear();
+    usernameInput.value = "";
+    passwordInput.value = "";
     childListRequest();
   } else {
     changeDisplayMessage("Failed to Login :" + message.value["error"]);
