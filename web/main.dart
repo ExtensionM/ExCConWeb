@@ -130,12 +130,14 @@ void loginRequest(Event e) {
     //Send Data on Web Socket
     if (wsClient != null && wsClient.readyState == WebSocket.OPEN) {
       wsClient.send(send_message.toString());
-      changeDisplayMessage("Send Message!");
+      changeDisplayMessage("メッセージを送信しました");
     } else {
-      changeDisplayMessage("Can't send...");
+      changeDisplayMessage("メッセージが送信できませんでした...");
     }
+    usernameInput.value = "";
+    passwordInput.value = "";
   } else {
-    changeDisplayMessage("Don't input password or username");
+    changeDisplayMessage("ユーザーネームとパスワードを入力してください");
   }
 }
 
@@ -164,11 +166,9 @@ void checkLogin(webSocketMessage message) {
     changeDisplayMessage("Succeeded in longing!");
     auth = true;
     selectDiv.children.clear();
-    usernameInput.value = "";
-    passwordInput.value = "";
     childListRequest();
   } else {
-    changeDisplayMessage("Failed to Login :" + message.value["error"]);
+    changeDisplayMessage("ログインに失敗しました:" + message.value["error"]);
   }
 }
 
@@ -227,7 +227,7 @@ void findChildFromList(webSocketMessage message) {
   });
 
   if (cameraChildIdMap.isEmpty) {
-    changeDisplayMessage("You don't have camera Children.");
+    changeDisplayMessage("カメラ子機を持っていません");
   } else {
     cameraChildIdMap.forEach((guid,name){
       InputElement button = new InputElement();
@@ -236,7 +236,7 @@ void findChildFromList(webSocketMessage message) {
       button.type = "button";
       button.onClick.listen((Event e){
         cameraID = guid;
-        changeDisplayMessage("You choice camera " + guid);
+        changeDisplayMessage(guid + "を選択しました");
         removeOrAppendButton(name);
       });
       selectDiv.children.add(button);
