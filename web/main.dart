@@ -252,10 +252,10 @@ void removeOrAppendButton(String name){
     upButton.style.display = "none";
     downButton.style.display = "none";
   } else {
-    rightButton.style.display = "block";
-    leftButton.style.display = "block";
-    upButton.style.display = "block";
-    downButton.style.display = "block";
+    rightButton.style.display = "inline";
+    leftButton.style.display = "inline";
+    upButton.style.display = "inline";
+    downButton.style.display = "inline";
   }
 }
 
