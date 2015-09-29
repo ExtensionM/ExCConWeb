@@ -67,16 +67,16 @@ void main() {
   changeDisplayMessage("Hello!");
   loginButton.onClick.listen(loginRequest);
   rightButton.onClick.listen((Event e) {
-    cameraServoMove(1, -5);
+    cameraServoMove(2, -5);
   });
   leftButton.onClick.listen((Event e) {
-    cameraServoMove(1, 5);
-  });
-  upButton.onClick.listen((Event e) {
     cameraServoMove(2, 5);
   });
+  upButton.onClick.listen((Event e) {
+    cameraServoMove(1, 5);
+  });
   downButton.onClick.listen((Event e) {
-    cameraServoMove(2, -5);
+    cameraServoMove(1, -5);
   });
   takeButton.onClick.listen((Event e) {
     takePhoto();
