@@ -67,16 +67,16 @@ void main() {
   changeDisplayMessage("Hello!");
   loginButton.onClick.listen(loginRequest);
   rightButton.onClick.listen((Event e) {
-    cameraServoMove(2, -5);
+    cameraServoMove(2, -10);
   });
   leftButton.onClick.listen((Event e) {
-    cameraServoMove(2, 5);
+    cameraServoMove(2, 10);
   });
   upButton.onClick.listen((Event e) {
-    cameraServoMove(1, 5);
+    cameraServoMove(1, 10);
   });
   downButton.onClick.listen((Event e) {
-    cameraServoMove(1, -5);
+    cameraServoMove(1, -10);
   });
   takeButton.onClick.listen((Event e) {
     takePhoto();
@@ -238,6 +238,7 @@ void findChildFromList(webSocketMessage message) {
         cameraID = guid;
         changeDisplayMessage(guid + "を選択しました");
         removeOrAppendButton(name);
+        cameraLRValue = cameraUDValue = 90;
       });
       selectDiv.children.add(button);
     });
