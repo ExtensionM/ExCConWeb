@@ -83,6 +83,7 @@ void main() {
   });
 
   wsClient.onMessage.listen(reciveWebsocketData);
+  window.onKeyDown.listen(listenKeyEvent);
 }
 
 /// Change Message of #message-text
@@ -280,6 +281,26 @@ void reciveWebsocketData(MessageEvent event) {
       displayCameraImage(message);
       break;
     default:
+      break;
+  }
+}
+
+void listenKeyEvent(KeyboardEvent e) {
+  switch (e.keyCode) {
+    case 37: //←
+      cameraServoMove(2, 5);
+      break;
+    case 38:
+      cameraServoMove(1, -5);
+      break;
+    case 39: //→
+      cameraServoMove(2, -5);
+      break;
+    case 40: //↓
+      cameraServoMove(1, 5);
+      break;
+    case 13: //Enter
+      takePhoto();
       break;
   }
 }
